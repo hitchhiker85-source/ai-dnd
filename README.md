@@ -2,25 +2,30 @@
 
 A single-player, AI-assisted Dungeons & Dragons game foundation.
 
-## Direction
+## Design goals
 
-The first milestone is a reliable local game engine with an AI Dungeon Master interface. Multiplayer will be added later around the same campaign/session model rather than embedded into the game rules.
+- Keep the world rules authoritative.
+- Let the AI DM narrate and suggest outcomes without mutating state directly.
+- Build a campaign engine first, then layer in multiplayer later.
 
-## Architecture
+## Core loop
 
-- `src/domain.ts` contains the serializable game state and domain types.
-- `src/dice.ts` contains deterministic-friendly dice utilities.
-- `src/engine.ts` contains validated state transitions and the Dungeon Master port.
-- AI providers should implement `DungeonMaster` and propose narration/actions; they do not mutate state directly.
+1. Create a player character.
+2. Start a scene or explore a location.
+3. Submit the player's intent.
+4. The AI DM returns narration and any requested dice rolls.
+5. The engine records journal entries and validates state changes.
 
-The engine remains authoritative for character changes, dice rolls, turns, and campaign history. This keeps AI output creative without allowing it to bypass game rules.
+## Current foundation
 
-## Getting started
+- `src/domain.ts` defines the game state, player intent, and DM contract.
+- `src/dice.ts` includes deterministic dice rolling and ability checks.
+- `src/engine.ts` adds campaign creation, character creation, scene setup, and intent submission.
+- `tests/engine.test.ts` verifies the core loop.
 
-```bash
-npm install
-npm test
-npm run build
-```
+## Next milestones
 
-The project intentionally has no provider-specific AI dependency yet. Add one behind the `DungeonMaster` interface after the core loop is established.
+- Add combat resolution and initiative.
+- Add skill checks, spells, and inventory use.
+- Add a persistent campaign store.
+- Plug in a real AI provider behind the `DungeonMaster` interface.
