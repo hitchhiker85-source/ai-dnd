@@ -23,6 +23,16 @@ export interface Character {
   inventory: string[];
 }
 
+export interface Enemy {
+  id: Id;
+  name: string;
+  armorClass: number;
+  hitPoints: { current: number; maximum: number };
+  attackBonus: number;
+  damageDice: string;
+  notes?: string;
+}
+
 export interface Scene {
   id: Id;
   title: string;
@@ -47,6 +57,7 @@ export interface CampaignState {
   round: number;
   activeCharacterId: Id | null;
   worldFacts: string[];
+  enemies: Enemy[];
 }
 
 export interface PlayerIntent {
@@ -69,6 +80,16 @@ export interface AbilityCheckResult {
   total: number;
   dc: number;
   success: boolean;
+}
+
+export interface AttackResult {
+  attacker: { name: string; attackBonus: number };
+  defender: { name: string; armorClass: number };
+  attackRoll: DiceRoll;
+  total: number;
+  hit: boolean;
+  damage: number;
+  remainingHp: number;
 }
 
 export interface DungeonMasterContext {

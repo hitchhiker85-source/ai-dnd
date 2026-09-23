@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { abilityCheck, roll } from "../src/dice.js";
-import { addCharacter, createCampaign, createCharacter, setScene, submitIntent } from "../src/engine.js";
+import { abilityCheck, createEnemy, resolveAttack, roll } from "../src/dice.js";
+import { addCharacter, addEnemy, createCampaign, createCharacter, setScene, submitIntent } from "../src/engine.js";
 import type { Character } from "../src/domain.js";
 
 const hero: Character = {
@@ -28,6 +28,12 @@ describe("dice", () => {
     expect(result.total).toBe(7);
     expect(result.success).toBe(false);
   });
+
+  it("resolves attack rolls and damage", () => {
+    const result = resolveAttack({ name: "Arin", attackBonus: 5, damageDice: "1d8" }, { name: "Goblin", armorClass: 12, hitPoints: { current: 8, maximum: 8 } }, { nextInt: () => 0 });
+    expect(result.hit).toBe(true);
+    expect(result.damage).toBe(1);
+  });
 });
 
 describe("campaign engine", () => {
@@ -51,6 +57,11 @@ describe("campaign engine", () => {
 
     expect(campaign.scene?.title).toBe("The Shivering Gate");
     expect(campaign.characters[0]?.name).toBe("Elira");
+  });
+
+  it("adds a hostile enemy to the campagin encounter", () => {
+    const campaign = addEnemy(createCampaign("The First Door"), createEnemy({ name: "Goblin", armorClass: 12, hitPoints: 8, attackBonus: 3, damageDice: "1d6" }));
+    expect(campaign.enemies[0]?.name).toBe("Goblin");
   });
 
   it("records a player action and DM narration", async () => {

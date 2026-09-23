@@ -1,4 +1,4 @@
-import type { Ability, AbilityCheckResult, DiceRoll, RandomSource } from "./domain.js";
+import type { Ability, AbilityCheckResult, AttackResult, Character, DamageSource, DiceRoll, Enemy, RandomSource } from "./domain.js";
 
 export interface RandomSource {
   nextInt(maxExclusive: number): number;
@@ -42,5 +42,55 @@ export function abilityCheck(
     total,
     dc,
     success: total >= dc,
+  };
+}
+
+export function createEnemy(input: {
+  name: string;
+  armorClass: number;
+  hitPoints: number;
+  attackBonus: number;
+  damageDice: string;
+  notes?: string;
+}): Enemy {
+  return {
+    id: `enemy-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+    name: input.name,
+    armorClass: input.armorClass,
+    hitPoints: { current: input.hitPoints, maximum: input.hitPoints },
+    attackBonus: input.attackBonus,
+    damageDice: input.damageDice,
+    notes: input.notes,
+  };
+}
+
+export function applyDamage(target: { hitPoints: { current: number; maximum: number } }, amount: number) {
+  const damage = Math.max(0, amount);
+  const remaining = Math.max(0, target.hitPoints.current - damage);
+  return {
+    ...target,
+    hitPoints: { ...target.hitPoints, current: remaining },
+  };
+}
+
+export function resolveAttack(
+  attacker: { name: string; attackBonus: number; damageDice: string },
+  defender: { name: string; armorClass: number; hitPoints: { current: number; maximum: number } },
+  random: RandomSource = systemRandom,
+): AttackResult {
+  const attackRoll = roll("1d20", random);
+  const total = attackRoll.total + attacker.attackBonus;
+  const hit = total >= defender.armorClass;
+  const damage = hit ? roll(attacker.damageDice, random).total : 0;
+  const remainingHp = Math.max(0, defender.hitPoints.current - damage);
+
+  return {
+    attacker: { name: attacker.name, attackBonus: attacker.attackBonus },
+    defender: { name: defender.name, armorClass: defender.armorClass },
+    attackRoll,
+    total,
+    hit,
+    damage,
+    remainingHp,
   };
 }

@@ -23,6 +23,7 @@ export function createCampaign(title: string): CampaignState {
     round: 1,
     activeCharacterId: null,
     worldFacts: [],
+    enemies: [],
   };
 }
 
