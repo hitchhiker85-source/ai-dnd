@@ -1,4 +1,4 @@
-import type { Ability, AbilityCheckResult, AttackResult, Character, DiceRoll, Enemy, RandomSource } from "./domain.js";
+import type { Ability, AbilityCheckResult, AttackResult, DiceRoll, Enemy, RandomSource } from "./domain";
 
 export interface RandomSource { nextInt(maxExclusive: number): number; }
 export const systemRandom: RandomSource = { nextInt: (maxExclusive) => Math.floor(Math.random() * maxExclusive) };
@@ -18,7 +18,9 @@ export function abilityCheck(ability: Ability, score: number, dc: number, random
 export function createEnemy(input: { name: string; armorClass: number; hitPoints: number; attackBonus: number; damageDice: string; notes?: string }): Enemy {
   return { id: `enemy-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`, name: input.name, armorClass: input.armorClass, hitPoints: { current: input.hitPoints, maximum: input.hitPoints }, attackBonus: input.attackBonus, damageDice: input.damageDice, ...(input.notes ? { notes: input.notes } : {}) };
 }
-export function applyDamage(target: { hitPoints: { current: number; maximum: number } }, amount: number) { return { ...target, hitPoints: { ...target.hitPoints, current: Math.max(0, target.hitPoints.current - Math.max(0, amount)) } }; }
+export function applyDamage<T extends { hitPoints: { current: number; maximum: number } }>(target: T, amount: number): T {
+  return { ...target, hitPoints: { ...target.hitPoints, current: Math.max(0, target.hitPoints.current - Math.max(0, amount)) } };
+}
 export function resolveAttack(attacker: { name: string; attackBonus: number; damageDice: string }, defender: { name: string; armorClass: number; hitPoints: { current: number; maximum: number } }, random: RandomSource = systemRandom): AttackResult {
   const attackRoll = roll("1d20", random), total = attackRoll.total + attacker.attackBonus, hit = total >= defender.armorClass, damage = hit ? roll(attacker.damageDice, random).total : 0;
   return { attacker: { name: attacker.name, attackBonus: attacker.attackBonus }, defender: { name: defender.name, armorClass: defender.armorClass }, attackRoll, total, hit, damage, remainingHp: Math.max(0, defender.hitPoints.current - damage) };
