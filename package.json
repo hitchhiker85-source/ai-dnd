@@ -1,16 +1,26 @@
 {
   "name": "ai-dnd",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "A single-player AI-assisted Dungeons & Dragons game foundation",
+  "description": "A browser-playable single-player AI-assisted Dungeons & Dragons foundation",
   "scripts": {
-    "build": "tsc --noEmit",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "typescript": "^5.7.0",
+    "vite": "^6.0.5",
     "vitest": "^2.1.0"
   }
 }
